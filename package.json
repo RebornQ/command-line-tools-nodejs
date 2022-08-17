@@ -1,0 +1,22 @@
+{
+  "name": "nodejs-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "unescape-json": "node unescape-json.js",
+    "pkg-unescape-json": "pkg -t node16-win-x64 unescape-json.js --out-path=dist/"
+  },
+  "pkg": {
+    "targets": [
+      "node16-win-x64"
+    ],
+    "outputPath": "dist"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.0"
+  },
+  "dependencies": {
+    "minimist": "^1.2.6"
+  }
+}
