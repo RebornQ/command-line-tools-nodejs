@@ -66,40 +66,65 @@ function unescapeJSONArray(arr) {
 
 const readline = require('readline').createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    prompt: '请输入 JSON 字符串，输入完毕后回车执行转换（可右键粘贴）: \n'
 })
 if (outPath !== undefined) {
     console.log("处理后的内容将输出到：" + outPath + '\n')
 }
-readline.question(`请输入 JSON 字符串（可右键粘贴）: \n`, input => {
+let input = [];
+readline.prompt();
+readline.on('line', (line) => {
+    switch (line.trim()) {
+        case '':
+            readline.close();
+            break;
+        default:
+            input.push(line)
+            break;
+    }
+}).on('close', () => {
+    input = input.reduce(function (fir, cur) { //连接字符串
+        return fir + cur;
+    });
     if (!input) {
         throw new Error("请输入参数！")
     }
-    let resultJson = unescapeJson(input);
-    let json = JSON.stringify(resultJson, null, 4)
-    if (outPath !== undefined) {
-        fs.writeFile(outPath, json, err => {
-            if (err) {
-                console.error(err);
-            } else {
-                // 文件写入成功。
-                console.log("\n处理结果已输出到：" + outPath)
-            }
+    try {
+        let resultJson = unescapeJson(input);
+        let json = JSON.stringify(resultJson, null, 4)
+        if (outPath !== undefined) {
+            fs.writeFile(outPath, json, err => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    // 文件写入成功。
+                    console.log("\n处理结果已输出到：" + outPath)
+                }
+                close()
+            })
+        } else {
+            console.log("\n转换结果：")
+            console.log(json)
             close()
-        })
-    } else {
-        console.log("\n转换结果：")
-        console.log(json)
-        close()
+        }
+    } catch (e) {
+        if (e.toString().includes("JSON")) {
+            console.error("也许是 JSON 不合法~\n", e);
+        } else {
+            console.error(e)
+        }
+        close();
     }
 })
 
 function close() {
-    readline.question("\n执行完毕，按回车结束...", input => {
+    const readline = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+    })
+    readline.question("\n执行完毕，按回车结束程序...", input => {
         readline.close();
+        process.exit(0); // 退出当前进程
     })
 }
-
-readline.on('close', function() {
-    process.exit(0); // 退出当前进程
-})
